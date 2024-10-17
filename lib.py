@@ -18,7 +18,6 @@ class Website:
     language: str | None = None
 
 
-
 class SortType(Enum):
     TIME = 1
     ALPHA = 2

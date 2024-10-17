@@ -34,6 +34,7 @@ def rss_article(article: Article):
         *optional,
     )
 
+
 def rss(website: Website, articles: list[Article]):
     optional = []
 
@@ -59,6 +60,7 @@ def rss(website: Website, articles: list[Article]):
         version="2.0",
     )
 
+
 def path2url(path) -> str | None:
     path = Path(path)
     for root in config.rootmap:
@@ -71,12 +73,14 @@ def path2url(path) -> str | None:
         path = str(PurePath(parsed.path) / relpath)
         return urlunparse(parsed._replace(path=path))
 
+
 def find_latest(path, n=5):
     key = None
     if config.sort == SortType.TIME:
         key = os.path.getmtime
 
     return islice(sorted(Path(path).iterdir(), key=key, reverse=True), n)
+
 
 def article_from_file(path: PurePath) -> Article:
     url = path2url(path)
@@ -89,6 +93,7 @@ def article_from_file(path: PurePath) -> Article:
         title=path.name,
         url=url,
     )
+
 
 if __name__ == "__main__":
     l = [article_from_file(p.resolve()) for p in find_latest(argv[1], 5)]
