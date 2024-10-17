@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 
-from sys import argv
-from itertools import islice
-from urllib.parse import urlparse, urlunparse
+import os.path
 from datetime import datetime, timezone
 from email.utils import format_datetime
+from itertools import islice
 from pathlib import Path, PurePath
-import os.path
+from sys import argv
+from urllib.parse import urlparse, urlunparse
 
 from lxml import etree
 from lxml.builder import E
 
 import config
-from lib import SortType, Website, Article
+from lib import Article, SortType, Website
 
 
 def now():

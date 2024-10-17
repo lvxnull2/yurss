@@ -1,4 +1,4 @@
-from lib import Website, SortType
+from lib import SortType, Website
 
 website = Website(
     title="Example title",
