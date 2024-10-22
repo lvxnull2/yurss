@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import argparse
 import os.path
 import runpy
 from datetime import datetime, timezone
@@ -141,5 +142,6 @@ def article_from_file(path) -> Article:
 
 
 def main():
-    print(argv)
+    parser = argparse.ArgumentParser(description="rss feed generator")
+    args = parser.parse_args(argv)
     return 0
