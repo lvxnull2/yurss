@@ -1,20 +1,31 @@
 #!/usr/bin/env python3
 
 import os.path
+import runpy
 from datetime import datetime, timezone
 from email.utils import format_datetime
 from itertools import islice
 from pathlib import Path, PurePath
-from sys import argv
+from sys import argv, exit
 from typing import no_type_check
 from urllib.parse import urlparse, urlunparse
 
 from bs4 import BeautifulSoup
-from lxml import etree
 from lxml.builder import E
 
-import config
-from lib import Article, SortType, Website
+from . import config
+from .lib import Article, SortType, Website
+
+
+def load_config(path):
+    vars = runpy.run_path(path)
+
+    for k, v in vars.items():
+        if k.startswith("_"):
+            continue
+        setattr(config, k, v)
+
+    return config
 
 
 def now():
@@ -55,7 +66,7 @@ def rss(website: Website, articles: list[Article]):
             E.title(website.title),
             E.link(website.url),
             E.description(website.description),
-            E.generator(":3"),
+            E.generator("yurss"),
             E.lastBuildDate(format_datetime(now(), usegmt=True)),
             *optional,
         ),
@@ -129,6 +140,6 @@ def article_from_file(path) -> Article:
     )
 
 
-if __name__ == "__main__":
-    l = [article_from_file(p.resolve()) for p in find_latest(argv[1], 5)]
-    print(etree.tostring(rss(config.website, l), encoding=str, pretty_print=True))
+def main():
+    print(argv)
+    return 0
