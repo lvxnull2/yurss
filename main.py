@@ -6,8 +6,10 @@ from email.utils import format_datetime
 from itertools import islice
 from pathlib import Path, PurePath
 from sys import argv
+from typing import no_type_check
 from urllib.parse import urlparse, urlunparse
 
+from bs4 import BeautifulSoup
 from lxml import etree
 from lxml.builder import E
 
@@ -82,16 +84,48 @@ def find_latest(path, n=5):
     return islice(sorted(Path(path).iterdir(), key=key, reverse=True), n)
 
 
-def article_from_file(path: PurePath) -> Article:
-    url = path2url(path)
-    if not url:
-        # TODO: handle the error more sensibly
+@no_type_check
+def article_from_file(path) -> Article:
+    path = Path(path)
+    if path.is_dir():
+        html_path = path / "index.html"
+    else:
+        html_path = path
+
+    with open(html_path, "rb") as f:
+        bs = BeautifulSoup(f, "lxml")
+
+    if (head := bs.head) is None:
+        # idk do something
         exit(100)
 
-    # TODO: More sophisticated data collection
+    url = path2url(path)
+    if not url:
+        # TODO: handle errors better
+        exit(100)
+
+    title = None
+    description = None
+    author = None
+
+    if og_title := head.find("meta", property="og:title", recursive=False):
+        title = og_title["content"]
+    elif html_title := head.title:
+        title = html_title.string
+    else:
+        title = path.name
+
+    if og_description := head.find("meta", property="og:description", recursive=False):
+        description = og_description["content"]
+
+    if og_author := head.find("meta", property="og:author", recursive=False):
+        author = og_author["content"]
+
     return Article(
-        title=path.name,
+        title=title,
         url=url,
+        description=description,
+        author=author,
     )
 
 
