@@ -114,6 +114,10 @@ def main():
     # fmt: on
 
     args = parser.parse_args()
+    if args.format == "atom":
+        print("Sorry, atom is currently unsupported")
+        exit(1)
+
     load_config(args.config)
     articles = [article_from_file(f.resolve()) for f in find_latest(args.directory)]
 
