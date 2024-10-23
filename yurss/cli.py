@@ -2,7 +2,7 @@ import argparse
 import os.path
 from itertools import islice
 from pathlib import Path, PurePath
-from sys import argv, exit
+from sys import exit
 from typing import no_type_check
 from urllib.parse import urlparse, urlunparse
 
@@ -10,6 +10,8 @@ from bs4 import BeautifulSoup
 
 from . import config
 from .lib import Article, SortType
+from .rss import rss
+from .util import load_config, write_xml
 
 
 def path2url(path) -> str | None:
@@ -80,5 +82,43 @@ def article_from_file(path) -> Article:
 
 def main():
     parser = argparse.ArgumentParser(description="rss feed generator")
-    args = parser.parse_args(argv)
+
+    # fmt: off
+    parser.add_argument(
+        "--output", "-o",
+        help="Path to output file. Stdout by default.",
+        default="-",
+        metavar="PATH",
+    )
+
+    parser.add_argument(
+        "--format", "-f",
+        choices=["rss", "atom"],
+        default="rss",
+    )
+
+    parser.add_argument(
+        "--config", "-c",
+        required=True,
+        help="Path to config file.",
+        metavar="PATH",
+    )
+
+    parser.add_argument(
+        "--pretty-print",
+        action="store_true",
+        help="Generate XML with intendation",
+    )
+
+    parser.add_argument("directory")
+    # fmt: on
+
+    args = parser.parse_args()
+    load_config(args.config)
+    articles = [article_from_file(f.resolve()) for f in find_latest(args.directory)]
+
+    write_xml(
+        rss(config.website, articles), args.output, pretty_print=args.pretty_print
+    )
+
     return 0
