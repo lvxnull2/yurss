@@ -1,5 +1,6 @@
 import argparse
 import os.path
+import re
 from heapq import nlargest
 from pathlib import Path, PurePath
 from sys import exit
@@ -9,9 +10,9 @@ from urllib.parse import urlparse, urlunparse
 from bs4 import BeautifulSoup
 
 from . import config
-from .lib import Article, SortType
+from .lib import Article, Person, SortType
 from .rss import rss
-from .util import fromisoformat, load_config, write_xml
+from .util import fromisoformat, fromtimestamp, load_config, write_xml
 
 
 def path2url(path) -> str | None:
@@ -74,8 +75,12 @@ def article_from_file(path) -> Article:
     if og_description := head.find("meta", property="og:description", recursive=False):
         description = og_description["content"]
 
+    # Apparently, og:author is supposed to be a URL
+    # but i dont care tbh, but for compatibility I will ignore a URL author.
     if og_author := head.find("meta", property="og:author", recursive=False):
-        author = og_author["content"]
+        author_str = og_author["content"]
+        if re.match("https?://", author_str) is None:
+            author = Person.from_string(author_str)
 
     if og_pubTime := head.find(
         "meta", property="article:published_time", recursive=False
@@ -86,6 +91,8 @@ def article_from_file(path) -> Article:
         "meta", property="article:modified_time", recursive=False
     ):
         modTime = fromisoformat(og_modTime["content"])
+    else:
+        modTime = fromtimestamp(os.path.getmtime(html_path))
 
     return Article(
         title=title,

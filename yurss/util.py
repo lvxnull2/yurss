@@ -37,3 +37,7 @@ def now():
 
 def fromisoformat(s: str):
     return datetime.fromisoformat(s).astimezone(timezone.utc)
+
+
+def fromtimestamp(t):
+    return datetime.fromtimestamp(t, timezone.utc)

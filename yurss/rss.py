@@ -13,7 +13,7 @@ def rss_article(article: Article):
         optional.append(E.description(article.description))
 
     if article.author:
-        optional.append(E.author(article.author))
+        optional.append(E.author(str(article.author)))
 
     if article.published_date:
         optional.append(E.pubDate(format_datetime(article.published_date, usegmt=True)))
@@ -32,6 +32,9 @@ def rss(website: Website, articles: list[Article]):
     #     if v := getattr(website, attr):
     #         optional.append(getattr(E, el or attr)(value or str(v)))
 
+    if website.author:
+        optional.append(E.webMaster(str(website.author)))
+
     if website.language:
         optional.append(E.language(website.language))
 
@@ -43,9 +46,9 @@ def rss(website: Website, articles: list[Article]):
             E.title(website.title),
             E.link(website.url),
             E.description(website.description),
+            *optional,
             E.generator("yurss"),
             E.lastBuildDate(format_datetime(now(), usegmt=True)),
-            *optional,
         ),
         version="2.0",
     )
