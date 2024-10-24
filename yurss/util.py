@@ -16,7 +16,7 @@ def write_xml(xml, path: str, pretty_print=False):
         stdout.buffer.write(serialized)
         return
 
-    with open(path, 'wb') as f:
+    with open(path, "wb") as f:
         f.write(serialized)
 
 
@@ -33,3 +33,7 @@ def load_config(path):
 
 def now():
     return datetime.now(timezone.utc)
+
+
+def fromisoformat(s: str):
+    return datetime.fromisoformat(s).astimezone(timezone.utc)

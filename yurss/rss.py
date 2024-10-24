@@ -15,6 +15,9 @@ def rss_article(article: Article):
     if article.author:
         optional.append(E.author(article.author))
 
+    if article.published_date:
+        optional.append(E.pubDate(format_datetime(article.published_date, usegmt=True)))
+
     return E.item(
         E.title(article.title),
         E.link(article.url),

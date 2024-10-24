@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
 
 
@@ -8,6 +9,8 @@ class Article:
     url: str
     description: str | None = None
     author: str | None = None
+    published_date: datetime | None = None
+    modified_date: datetime | None = None
 
 
 @dataclass(slots=True)

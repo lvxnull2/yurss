@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup
 from . import config
 from .lib import Article, SortType
 from .rss import rss
-from .util import load_config, write_xml
+from .util import fromisoformat, load_config, write_xml
 
 
 def path2url(path) -> str | None:
@@ -61,6 +61,8 @@ def article_from_file(path) -> Article:
     title = None
     description = None
     author = None
+    pubTime = None
+    modTime = None
 
     if og_title := head.find("meta", property="og:title", recursive=False):
         title = og_title["content"]
@@ -75,11 +77,23 @@ def article_from_file(path) -> Article:
     if og_author := head.find("meta", property="og:author", recursive=False):
         author = og_author["content"]
 
+    if og_pubTime := head.find(
+        "meta", property="article:published_time", recursive=False
+    ):
+        pubTime = fromisoformat(og_pubTime["content"])
+
+    if og_modTime := head.find(
+        "meta", property="article:modified_time", recursive=False
+    ):
+        modTime = fromisoformat(og_modTime["content"])
+
     return Article(
         title=title,
         url=url,
         description=description,
         author=author,
+        published_date=pubTime,
+        modified_date=modTime,
     )
 
 
