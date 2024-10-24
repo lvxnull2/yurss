@@ -1,6 +1,6 @@
 import argparse
 import os.path
-from itertools import islice
+from heapq import nlargest
 from pathlib import Path, PurePath
 from sys import exit
 from typing import no_type_check
@@ -32,7 +32,10 @@ def find_latest(path, n=5):
     if config.sort == SortType.TIME:
         key = os.path.getmtime
 
-    return islice(sorted(Path(path).iterdir(), key=key, reverse=True), n)
+    if n == 1:
+        return [max(Path(path).iterdir(), key=key)]
+
+    return nlargest(n, Path(path).iterdir(), key=key)
 
 
 @no_type_check
